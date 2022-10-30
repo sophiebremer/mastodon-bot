@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../build/CLI.js');
+require('../lib/CLI.js');
