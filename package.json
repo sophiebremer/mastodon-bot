@@ -1,0 +1,39 @@
+{
+    "private": true,
+    "author": "Sophie Bremer",
+    "description": "Mastodon bot",
+    "license": "MIT",
+    "name": "mastodon-bot",
+    "version": "0.0.1",
+
+    "main": "./lib/index.js",
+    "types": "./lib/index.d.ts",
+
+    "homepage": "https://github.com/sophiebremer/mastodon-bot#readme",
+    "bugs": "https://github.com/sophiebremer/mastodon-bot/issues",
+    "repository": "https://github.com/sophiebremer/mastodon-bot.git",
+
+    "bin": {
+        "mastodon-bot": "./bin/mastodon-bot.js"
+    },
+    "dependencies": {
+        "mastodon-api": "github:sophiebremer/mastodon-api",
+        "node-fetch": "^3.2.10",
+        "yargs": "^17.6.0"
+    },
+    "devDependencies": {
+        "@types/node": "^18.11.8",
+        "@types/node-fetch": "^2.6.2",
+        "@types/yargs": "^17.0.13",
+        "typescript": "^4.8.4"
+    },
+    "files": [
+        "bin/",
+        "lib/",
+        "LICENSE",
+        "README.md"
+    ],
+    "scripts": {
+        "build": "rm -rf ./lib/ && tsc -b sources"
+    }
+}

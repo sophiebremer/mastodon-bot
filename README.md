@@ -1,2 +1,2 @@
-# mastodon-bot
-Mastodon bot
+Mastodon Bot
+============
