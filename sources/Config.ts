@@ -5,7 +5,8 @@
  * */
 
 import * as FS from 'fs';
-import * as Mastodon from 'mastodon-api';
+import MastodonClient from './MastodonClient';
+import Transformer from './Transformer';
 
 /* *
  *
@@ -14,32 +15,12 @@ import * as Mastodon from 'mastodon-api';
  * */
 
 export interface AuthConfig {
-    mastodon: Mastodon.Config;
+    mastodon: MastodonClient.AuthConfig;
 }
 
 export interface Config {
     auth: AuthConfig;
-    transform: Array<TransformConfig>;
-}
-
-export interface MastodonTargetConfig {
-    type: 'mastodon';
-    signature?: string;
-}
-
-export interface RSSSourceConfig {
-    type: 'rss';
-    feeds: Record<string, string>;
-}
-
-export type SourceConfig = RSSSourceConfig;
-
-export type TargetConfig = MastodonTargetConfig;
-
-export interface TransformConfig {
-    replacements?: Record<string, string>;
-    source: SourceConfig;
-    target: TargetConfig;
+    transform: Array<Transformer.Config>;
 }
 
 /* *

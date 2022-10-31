@@ -4,8 +4,9 @@
  *
  * */
 
-import Config from './Config';
 import Mastodon from 'mastodon-api';
+import * as MastodonApi from 'mastodon-api';
+import Client from './Client';
 
 /* *
  *
@@ -13,7 +14,7 @@ import Mastodon from 'mastodon-api';
  *
  * */
 
-export class MastodonClient {
+export class MastodonClient extends Client {
 
     /* *
      *
@@ -22,13 +23,12 @@ export class MastodonClient {
      * */
 
     public constructor(
-        config: Config
+        authConfig: MastodonClient.AuthConfig,
+        targetConfig: MastodonClient.TargetConfig
     ) {
-        if (!config.auth?.mastodon) {
-            throw new Error('Mastodon authentication not configured.');
-        }
+        super();
+        this.mastodon = new Mastodon(authConfig);
 
-        this.mastodon = new Mastodon(config.auth.mastodon);
     }
 
     /* *
@@ -40,6 +40,40 @@ export class MastodonClient {
     protected mastodon: Mastodon;
 
 }
+
+/* *
+ *
+ *  Class Namespace
+ *
+ * */
+
+export namespace MastodonClient {
+
+    /* *
+     *
+     *  Declarations
+     *
+     * */
+
+    export interface AuthConfig extends MastodonApi.Config {
+        // nothing to add
+    }
+
+    export interface TargetConfig extends Client.TargetConfig {
+        target_type: 'mastodon';
+        sensitive?: boolean;
+        signature?: string;
+    }
+
+}
+
+/* *
+ *
+ *  Registry
+ *
+ * */
+
+Client.types.mastodon = MastodonClient;
 
 /* *
  *

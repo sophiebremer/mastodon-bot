@@ -1,25 +1,11 @@
-import * as Mastodon from 'mastodon-api';
+import MastodonClient from './MastodonClient';
+import Transformer from './Transformer';
 export interface AuthConfig {
-    mastodon: Mastodon.Config;
+    mastodon: MastodonClient.AuthConfig;
 }
 export interface Config {
     auth: AuthConfig;
-    transform: Array<TransformConfig>;
-}
-export interface MastodonTargetConfig {
-    type: 'mastodon';
-    signature?: string;
-}
-export interface RSSSourceConfig {
-    type: 'rss';
-    feeds: Record<string, string>;
-}
-export declare type SourceConfig = RSSSourceConfig;
-export declare type TargetConfig = MastodonTargetConfig;
-export interface TransformConfig {
-    replacements?: Record<string, string>;
-    source: SourceConfig;
-    target: TargetConfig;
+    transform: Array<Transformer.Config>;
 }
 export declare namespace Config {
     function load(path: string): Config;
