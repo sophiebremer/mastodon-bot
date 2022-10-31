@@ -40,7 +40,11 @@ export namespace Config {
     export function load(
         path: string
     ): Config {
-        const config = JSON.parse(FS.readFileSync(path).toString());
+        const json = FS
+            .readFileSync(path)
+            .toString()
+            .replace(/^\s*\/\/.*$/gm, '');
+        const config = JSON.parse(json);
 
         if (!config || config instanceof Array) {
             throw new Error('Missing config with keys and values.');
