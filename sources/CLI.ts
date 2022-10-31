@@ -4,15 +4,16 @@ import { hideBin } from 'yargs/helpers';
 
 Yargs(hideBin(process.argv))
     .command(
-        'mastodon-bot [config]',
-        'run the bot',
-        yargs => yargs
-            .positional('config', {
-                describe: 'config to use',
-                default: 'config.json'
-            }),
-        argv => {
-            console.log(Config.load(argv.config || 'config.json'));
+        '* [config]',
+        false,
+        function (yargs) {
+            return yargs.positional('config', {
+                default: 'config.json',
+                description: 'Path to config'
+            });
+        },
+        function (argv) {
+            console.log(Config.load(argv.config));
         }
     )
     .parse();
