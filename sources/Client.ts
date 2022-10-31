@@ -54,7 +54,7 @@ export class Client {
      *
      * */
 
-    public getItems(date: Date): Array<Transformer.Item> {
+    public getItems(since: Date): Array<Transformer.Item> {
         throw new Error('Not implemented');
     }
 
