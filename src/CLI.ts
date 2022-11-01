@@ -1,4 +1,4 @@
-import Config from './Config';
+import * as Bot from './index.js';
 import Yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
 
@@ -13,7 +13,7 @@ Yargs(hideBin(process.argv))
             });
         },
         function (argv) {
-            console.log(Config.load(argv.config));
+            Bot.Transformer.run(Bot.Config.load(argv.config));
         }
     )
     .parse();

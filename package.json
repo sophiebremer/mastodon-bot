@@ -4,6 +4,7 @@
     "description": "Mastodon bot",
     "license": "MIT",
     "name": "mastodon-bot",
+    "type": "module",
     "version": "0.0.1",
 
     "main": "./lib/index.js",
@@ -14,16 +15,16 @@
     "repository": "https://github.com/sophiebremer/mastodon-bot.git",
 
     "bin": {
-        "mastodon-bot": "./bin/mastodon-bot.js"
+        "mastodon-bot": "./bin/mastodon-bot.mjs"
     },
     "dependencies": {
-        "mastodon-api": "github:sophiebremer/mastodon-api",
+        "fast-xml-parser": "^4.0.11",
+        "mastodon-api": "github:sophiebremer/mastodon-api#v1.9.99",
         "node-fetch": "^3.2.10",
         "yargs": "^17.6.0"
     },
     "devDependencies": {
         "@types/node": "^18.11.8",
-        "@types/node-fetch": "^2.6.2",
         "@types/yargs": "^17.0.13",
         "typescript": "^4.8.4"
     },
@@ -34,6 +35,7 @@
         "README.md"
     ],
     "scripts": {
-        "build": "rm -rf ./lib/ && tsc -b sources"
+        "build": "rm -rf ./lib/ && tsc -b ./src/",
+        "watch": "npm run build -- --watch"
     }
 }

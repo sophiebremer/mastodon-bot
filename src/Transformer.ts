@@ -4,7 +4,8 @@
  *
  * */
 
-import Client from './Client';
+import Client from './Clients/Client.js';
+import Config from './Config.js';
 
 /* *
  *
@@ -16,18 +17,65 @@ export class Transformer {
 
     /* *
      *
+     *  Static Functions
+     *
+     * */
+
+    public static async run(
+        config: Config
+    ): Promise<void> {
+        const auth = config.auth || {};
+        const promises: Array<Promise<void>> = [];
+        const transforms = config.transforms || [];
+
+        let sourceClient: Client;
+        let sourceConfig: Client.SourceConfig;
+        let sourceType: string;
+
+        let targetClient: Client;
+        let targetConfig: Client.TargetConfig;
+        let targetType: string;
+
+        let transformer: Transformer;
+
+        for (const transform of transforms) {
+
+            sourceConfig = transform.source;
+            sourceType = sourceConfig.source_type;
+            sourceClient = Client.get(sourceConfig, auth[sourceType]);
+
+            targetConfig = transform.target;
+            targetType = targetConfig.target_type;
+            targetClient = Client.get(targetConfig, auth[targetType]);
+
+            transformer = new Transformer(
+                transform,
+                sourceClient,
+                targetClient
+            );
+
+            promises.push(transformer.transform());
+        }
+
+        return Promise.all(promises).then(() => undefined);
+    }
+
+    /* *
+     *
      *  Constructor
      *
      * */
 
     public constructor(
-        config: Transformer.Config
+        config: Transformer.Config,
+        sourceClient: Client,
+        targetClient: Client
     ) {
         this.negatives = config.negatives?.slice();
         this.positives = config.positives?.slice();
         this.replacements = { ...config.replacements };
-        this.sourceClient = Client.get(config.source.source_type, config.source);
-        this.targetClient = Client.get(config.target.target_type, config.target);
+        this.sourceClient = sourceClient;
+        this.targetClient = targetClient;
     }
 
     /* *
@@ -53,8 +101,8 @@ export class Transformer {
      * */
 
     protected filter(
-        items: Array<Transformer.Item>
-    ): Array<Transformer.Item> {
+        items: Array<Client.Item>
+    ): Array<Client.Item> {
 
         if (
             !this.negatives &&
@@ -64,7 +112,7 @@ export class Transformer {
             return items;
         }
 
-        const filteredItems: Array<Transformer.Item> = [];
+        const filteredItems: Array<Client.Item> = [];
         const negatives = this.negatives || [];
         const positives = this.positives || [];
         const replacements = this.replacements || {};
@@ -74,6 +122,12 @@ export class Transformer {
         let text: string;
 
         for (const item of items) {
+
+            if (!item.text) {
+                filteredItems.push(item);
+                continue;
+            }
+
             negativesCounter = 0;
             positivesCounter = 0;
             text = item.text;
@@ -107,13 +161,15 @@ export class Transformer {
         return filteredItems;
     }
 
-    public transform() {
+    public async transform() {
         const sourceClient = this.sourceClient;
         const targetClient = this.targetClient;
 
-        targetClient.setItems(
+        await targetClient.setItems(
             this.filter(
-                sourceClient.getItems(targetClient.getTimestamp())
+                await sourceClient.getItems(
+                    await targetClient.getTimestamp()
+                )
             )
         );
     }
@@ -140,12 +196,6 @@ export namespace Transformer {
         replacements?: Record<string, string>;
         source: Client.SourceConfig;
         target: Client.TargetConfig;    
-    }
-
-    export interface Item {
-        source_type: string;
-        text: string;
-        time: Date;
     }
 
 }

@@ -12,7 +12,7 @@ config.json
             "api_url": "https://mastodon.social/api/v1/"
         }
     },
-    "transform": [
+    "transforms": [
         {
             "source": {
                 "source_type": "rss",
