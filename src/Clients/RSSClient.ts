@@ -66,6 +66,8 @@ export class RSSClient extends Client {
 
                     let link = (item.link instanceof Array ? item.link[0] : item.link);
                     link = typeof link === 'string' ? link : link.$_href;
+                    link = config.link_query ? link : link.split('?')[0];
+                    link = config.link_hash ? link : link.split('#')[0];
 
                     let text = (item.description || item.summary || item.title);
                     text = config.append_name ? config.append_name + '\n' + text : text;
@@ -114,6 +116,8 @@ export namespace RSSClient {
         source_type: 'rss';
         append_name?: boolean;
         item_limit?: number;
+        link_hash?: boolean;
+        link_query?: boolean;
         feeds: Record<string, string>;
     }
 
