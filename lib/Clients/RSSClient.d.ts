@@ -8,6 +8,8 @@ export declare namespace RSSClient {
         source_type: 'rss';
         append_name?: boolean;
         item_limit?: number;
+        link_hash?: boolean;
+        link_query?: boolean;
         feeds: Record<string, string>;
     }
     interface TargetConfig extends Client.TargetConfig {
