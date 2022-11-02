@@ -56,6 +56,13 @@ export namespace Config {
         return config as Config;
     }
 
+    export function save(
+        path: string,
+        config: Config
+    ): void {
+        FS.writeFileSync(path, JSON.stringify(config, undefined, '    '));
+    }
+
 }
 
 /* *

@@ -11,5 +11,6 @@ export interface Config {
 }
 export declare namespace Config {
     function load(path: string): Config;
+    function save(path: string, config: Config): void;
 }
 export default Config;

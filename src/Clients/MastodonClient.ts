@@ -33,6 +33,7 @@ export class MastodonClient extends Client {
             throw new Error('Authentication missing');
         }
 
+        this.authConfig = authConfig;
         this.config = clientConfig;
         this.mastodon = new (Mastodon as any)(authConfig);
     }
@@ -42,6 +43,8 @@ export class MastodonClient extends Client {
      *  Properties
      *
      * */
+
+    private readonly authConfig: MastodonClient.AuthConfig;
 
     public readonly config: MastodonClient.Config;
 
@@ -63,23 +66,42 @@ export class MastodonClient extends Client {
             ));
         });
     }
+
     public async getTimestamp(): Promise<number> {
-        const account = await this.get('accounts/verify_credentials');
+        const accountId = (
+            this.authConfig.account_id ||
+            (await this.get('accounts/verify_credentials')).id
+        );
+        const status = (
+            (await this.get(`accounts/${accountId}/statuses?limit=1`))
+            ?.pop()
+        );
+
         return (
-            account.last_status_at ?
-                Date.parse(account.last_status_at) :
-                new Date().getTime()
+            status?.created_at ? Date.parse(status.created_at) :
+            new Date().getTime()
         );
     }
 
     protected post(
         path: string,
         params: Record<string, any> = {}
-    ): Promise<any> {
+    ): Promise<number> {
         return new Promise((resolve, reject) => {
-            this.mastodon.post(path, params, (err, data) => (
-                err ? reject(err) : resolve(data)
-            )); 
+            this.mastodon.post(path, params, (err, data, response) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                const rateLimit = parseInt('0' + response.headers['x-ratelimit-remaining'], 10);
+
+                if (rateLimit) {
+                    resolve(60000 / rateLimit);
+                }
+                else {
+                    resolve(3000);
+                }
+            }); 
         });
     }
 
@@ -99,13 +121,13 @@ export class MastodonClient extends Client {
         const signature = config.signature || '';
         const stdout = process.stdout;
 
-        let schedule = 60000 * 6 + new Date().getTime();
+        let delay: number;
 
-        stdout.write(`\nPosting ${items.length} item(s) scheduled for ${new Date(schedule).toUTCString()}`);
+        stdout.write(`\nPosting ${items.length} item(s)`);
 
         for (const item of items) {
 
-            await this.post('statuses', {
+            delay = await this.post('statuses', {
                 status: (
                     (item.text || '')
                         .trim()
@@ -114,15 +136,12 @@ export class MastodonClient extends Client {
                     + item.link
                     + '\n'
                     + signature
-                ),
-                schedule_at: new Date(schedule).toISOString()
+                )
             });
 
             process.stdout.write('.');
 
-            schedule += 61000;
-
-            await this.delay(1000);
+            await this.delay(delay);
         }
 
         process.stdout.write('\n');
@@ -145,7 +164,7 @@ export namespace MastodonClient {
      * */
 
     export interface AuthConfig extends MastodonAPI.Config {
-        // nothing to add
+        account_id?: number
     }
 
     export type Config = (SourceConfig|TargetConfig);

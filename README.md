@@ -18,7 +18,8 @@ config.json
                 "source_type": "rss",
                 "feeds": {
                     "RSS": "https://rss.example/feed.rss"
-                }
+                },
+                "item_limit": 10
             },
             "target": {
                 "target_type": "mastodon",
