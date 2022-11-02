@@ -8,6 +8,7 @@ import type * as MastodonAPI from 'mastodon-api';
 
 import Client from './Client.js';
 import Mastodon = require('mastodon-api');
+import Utilities from '../Utilities.js';
 
 /* *
  *
@@ -128,14 +129,12 @@ export class MastodonClient extends Client {
         for (const item of items) {
 
             delay = await this.post('statuses', {
-                status: (
-                    (item.text || '')
-                        .trim()
-                        .substring(0, 498 - (item.link || '').length - signature.length)
-                    + '\n'
-                    + item.link
-                    + '\n'
-                    + signature
+                status: Utilities.assembleString(
+                    (item.text || '').trim(),
+                    (item.link || signature ? '\n' : '') +
+                    (item.link ? `\n${item.link}` : '') +
+                    (signature ? `\n${signature}` : ''),
+                    500
                 )
             });
 
