@@ -67,7 +67,7 @@ export class RSSClient extends Client {
                     let link = (item.link instanceof Array ? item.link[0] : item.link);
                     link = typeof link === 'string' ? link : link.$_href;
 
-                    let text = (item.description || item.summary);
+                    let text = (item.description || item.summary || item.title);
                     text = config.append_name ? config.append_name + '\n' + text : text;
 
                     allItems.push({
