@@ -7,6 +7,7 @@ export declare namespace RSSClient {
     interface SourceConfig extends Client.SourceConfig {
         source_type: 'rss';
         append_name?: boolean;
+        item_limit?: number;
         feeds: Record<string, string>;
     }
     interface TargetConfig extends Client.TargetConfig {

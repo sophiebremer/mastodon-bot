@@ -30,24 +30,27 @@ export class RSSClient extends Client {
             throw new Error('Client is not in source mode');
         }
 
+        const allItems: Array<Client.Item> = [];
         const config = this.config as RSSClient.SourceConfig;
         const feeds = config.feeds;
-        const allItems: Array<Client.Item> = [];
+        const stdout = process.stdout;
+
+        stdout.write(`\nSearching for new items since ${new Date(sinceTimestamp).toUTCString()}\n`);
 
         for (const feedName in feeds) {
             const response = await fetch(feeds[feedName]);
             const parser = new XML.XMLParser({
-                removeNSPrefix: true
+                attributeNamePrefix: '$_',
+                ignoreAttributes: false,
+                removeNSPrefix: true,
             });
             const xml = parser.parse(await response.text());
 
-            if (!xml.rss) {
+            if (!xml.rss && !xml.feed) {
                 throw new Error('RSS invalid');
             }
 
-            const rss = xml.rss;
-
-            let channels = rss.channel || rss.feed;
+            let channels = xml.rss?.channel || xml.feed;
             channels = channels instanceof Array ? channels : [channels];
 
             for (const channel of channels) {
@@ -62,8 +65,10 @@ export class RSSClient extends Client {
                     }
 
                     let link = (item.link instanceof Array ? item.link[0] : item.link);
-                    let text = (item.description || item.content);
-                    text = text.toString().replace(/<>/g, '');
+                    link = typeof link === 'string' ? link : link.$_href;
+
+                    let text = (item.description || item.summary);
+                    text = config.append_name ? config.append_name + '\n' + text : text;
 
                     allItems.push({
                         link,
@@ -76,6 +81,13 @@ export class RSSClient extends Client {
         }
 
         allItems.sort((a, b) => a.timestamp - b.timestamp);
+
+        if (
+            config.item_limit &&
+            allItems.length > config.item_limit
+        ) {
+            allItems.splice(0, allItems.length - config.item_limit);
+        }
 
         return allItems;
     }
@@ -101,6 +113,7 @@ export namespace RSSClient {
     export interface SourceConfig extends Client.SourceConfig {
         source_type: 'rss';
         append_name?: boolean;
+        item_limit?: number;
         feeds: Record<string, string>;
     }
 
