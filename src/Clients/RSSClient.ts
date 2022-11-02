@@ -35,7 +35,7 @@ export class RSSClient extends Client {
         const feeds = config.feeds;
         const stdout = process.stdout;
 
-        stdout.write(`\nSearching for new items since ${new Date(sinceTimestamp).toUTCString()}\n`);
+        stdout.write(`\nSearch for new items since ${new Date(sinceTimestamp).toUTCString()}\n`);
 
         for (const feedName in feeds) {
             const response = await fetch(feeds[feedName]);
