@@ -149,7 +149,21 @@ export class Transformer {
             }
 
             for (const pattern in replacements) {
-                text = text.split(pattern).join(replacements[pattern]);
+                if (
+                    pattern.length > 3 &&
+                    pattern.startsWith('/') &&
+                    pattern.endsWith('/')
+                ) {
+                    text = text.replace(
+                        new RegExp(pattern.substring(1, pattern.length - 2), 'gsu'),
+                        replacements[pattern]
+                    );
+                }
+                else {
+                    text = text
+                        .split(pattern)
+                        .join(replacements[pattern]);
+                }
             }
 
             filteredItems.push({
