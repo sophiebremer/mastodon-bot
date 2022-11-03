@@ -20,7 +20,7 @@ export declare namespace MastodonClient {
     }
     interface TargetConfig extends Client.TargetConfig {
         target_type: 'mastodon';
-        latestTimestampKeywords?: Array<string>;
+        related_status_keywords?: Array<string>;
         sensitive?: boolean;
         signature?: string;
     }
