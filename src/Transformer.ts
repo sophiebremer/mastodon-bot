@@ -150,12 +150,12 @@ export class Transformer {
 
             for (const pattern in replacements) {
                 if (
-                    pattern.length > 3 &&
+                    pattern.length > 2 &&
                     pattern.startsWith('/') &&
                     pattern.endsWith('/')
                 ) {
                     text = text.replace(
-                        new RegExp(pattern.substring(1, pattern.length - 2), 'gsu'),
+                        new RegExp(pattern.substring(1, pattern.length - 1), 'gsu'),
                         replacements[pattern]
                     );
                 }
