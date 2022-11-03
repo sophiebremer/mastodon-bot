@@ -1,5 +1,15 @@
 /* *
  *
+ *  Constants
+ *
+ * */
+
+const BREAKS_REGEXP = /[\n\r]+/gu;
+
+const SPACES_REGEXP = /\s+/gu;
+
+/* *
+ *
  *  Functions
  *
  * */
@@ -19,6 +29,18 @@ function assembleString(
     return text + addition;
 }
 
+function trimSpaces(
+    text: string,
+    removeBreaks?: boolean
+) {
+
+    if (removeBreaks) {
+        text = text.replace(BREAKS_REGEXP, ' ');
+    }
+
+    return text.replace(SPACES_REGEXP, ' ').trim();
+}
+
 /* *
  *
  *  Default Export
@@ -26,7 +48,8 @@ function assembleString(
  * */
 
 export const Utilities = {
-    assembleString
+    assembleString,
+    trimSpaces
 };
 
 export default Utilities;

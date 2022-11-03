@@ -7,6 +7,7 @@
 import * as XML from 'fast-xml-parser';
 import fetch from 'node-fetch';
 import Client from './Client.js';
+import Utilities from '../Utilities.js';
 
 /* *
  *
@@ -69,8 +70,20 @@ export class RSSClient extends Client {
                     link = config.link_query ? link : link.split('?')[0];
                     link = config.link_hash ? link : link.split('#')[0];
 
-                    let text = (item.description || item.summary || item.title);
-                    text = config.append_name ? config.append_name + '\n' + text : text;
+                    let text = Utilities.trimSpaces(
+                        item.description || item.summary || '',
+                        true
+                    );
+                    text = (
+                        item.title && text ?
+                            Utilities.trimSpaces(item.title, true) + '\n\n' + text :
+                            Utilities.trimSpaces(item.title || '', true) || text
+                    );
+                    text = (
+                        config.append_name && feedName ?
+                            Utilities.trimSpaces(feedName, true) + ': ' + text :
+                            text
+                    );
 
                     allItems.push({
                         link,
