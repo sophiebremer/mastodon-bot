@@ -29,6 +29,20 @@ function assembleString(
     return text + addition;
 }
 
+function includes(
+    text: string,
+    searchTerms: Array<string>
+): boolean {
+
+    for (const term of searchTerms) {
+        if (text.includes(term)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function trimSpaces(
     text: string,
     removeBreaks?: boolean
@@ -49,6 +63,7 @@ function trimSpaces(
 
 export const Utilities = {
     assembleString,
+    includes,
     trimSpaces
 };
 
