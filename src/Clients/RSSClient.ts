@@ -66,9 +66,9 @@ export class RSSClient extends Client {
                     }
 
                     let link = (item.link instanceof Array ? item.link[0] : item.link);
-                    link = typeof link === 'string' ? link : link.$_href;
-                    link = config.link_query ? link : link.split('?')[0];
-                    link = config.link_hash ? link : link.split('#')[0];
+                    link = typeof link === 'object' ? link.$_href : link;
+                    link = config.link_query === false ? link.split('?')[0] : link;
+                    link = config.link_hash === false ? link.split('#')[0] : link;
 
                     let text = Utilities.trimSpaces(
                         item.description || item.summary || '',
