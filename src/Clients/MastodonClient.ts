@@ -68,20 +68,36 @@ export class MastodonClient extends Client {
         });
     }
 
-    public async getTimestamp(): Promise<number> {
+    public async getTimestamp(
+        latestTimestampKeywords: Array<string> = []
+    ): Promise<number> {
+        const keywords = !!latestTimestampKeywords.length;
+        const limit = keywords ? '' : '?limit=1';
         const accountId = (
             this.authConfig.account_id ||
             (await this.get('accounts/verify_credentials')).id
         );
-        const status = (
-            (await this.get(`accounts/${accountId}/statuses?limit=1`))
-            ?.pop()
-        );
+        const statuses = await this.get(`accounts/${accountId}/statuses${limit}`);
 
-        return (
-            status?.created_at ? Date.parse(status.created_at) :
-            new Date().getTime()
-        );
+        let text: string;
+
+        for (const status of statuses) {
+            text = status.status;
+
+            if (
+                keywords &&
+                text &&
+                !Utilities.includes(text, latestTimestampKeywords)
+            ) {
+                continue;
+            }
+
+            if (status.created_at) {
+                return Date.parse(status.created_at);
+            }
+        }
+
+        return new Date().getTime();
     }
 
     protected post(
@@ -174,6 +190,7 @@ export namespace MastodonClient {
 
     export interface TargetConfig extends Client.TargetConfig {
         target_type: 'mastodon';
+        latestTimestampKeywords?: Array<string>;
         sensitive?: boolean;
         signature?: string;
     }
