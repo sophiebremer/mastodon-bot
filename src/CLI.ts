@@ -13,7 +13,12 @@ Yargs(hideBin(process.argv))
             });
         },
         function (argv) {
-            Bot.Transformer.run(Bot.Config.load(argv.config));
+            Bot.Transformer
+                .run(Bot.Config.load(argv.config))
+                .catch((e) => {
+                    console.error(e);
+                    process.exit(1);
+                });
         }
     )
     .parse();

@@ -1,6 +1,8 @@
 Mastodon Bot
 ============
 
+This bot can filter and post RSS items to a Mastodon account.
+
 config.json
 -----------
 
@@ -28,8 +30,9 @@ config.json
                 "item_limit": 10
             },
             "target": {
-                // "sensitive": false,
                 "target_type": "mastodon",
+                // "related_status_keywords": [ "search.example" ],
+                // "sensitive": false,
                 "signature": "#rssbot"
             }
         }

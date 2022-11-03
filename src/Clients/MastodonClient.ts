@@ -70,34 +70,39 @@ export class MastodonClient extends Client {
 
     public async getTimestamp(): Promise<number> {
         const config = this.config as MastodonClient.TargetConfig;
-        const latestTimestampKeywords = (config.latestTimestampKeywords || []);
-        const keywords = !!latestTimestampKeywords.length;
-        const limit = (keywords ? '' : '?limit=1');
+        const statusKeywords = (config.related_status_keywords || []);
+        const hasKeywords = !!statusKeywords.length;
+        const limit = (hasKeywords ? '' : '?limit=1');
         const accountId = (
             this.authConfig.account_id ||
             (await this.get('accounts/verify_credentials')).id
         );
         const statuses = await this.get(`accounts/${accountId}/statuses${limit}`);
 
-        let text: string;
+        let timestamp = new Date().getTime();
+        let content: string;
 
         for (const status of statuses) {
-            text = status.status;
+            content = status.content;console.log(status);
+
+            if (status.created_at) {
+                timestamp = Date.parse(status.created_at);
+            }
 
             if (
-                keywords &&
-                text &&
-                !Utilities.includes(text, latestTimestampKeywords)
+                hasKeywords &&
+                content &&
+                !Utilities.includes(content, statusKeywords)
             ) {
+                console.log('continue', timestamp);
                 continue;
             }
 
-            if (status.created_at) {
-                return Date.parse(status.created_at);
-            }
+            console.log('break', timestamp);
+            break;
         }
 
-        return new Date().getTime();
+        return timestamp;
     }
 
     protected post(
@@ -190,7 +195,7 @@ export namespace MastodonClient {
 
     export interface TargetConfig extends Client.TargetConfig {
         target_type: 'mastodon';
-        latestTimestampKeywords?: Array<string>;
+        related_status_keywords?: Array<string>;
         sensitive?: boolean;
         signature?: string;
     }
