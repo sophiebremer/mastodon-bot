@@ -83,7 +83,7 @@ export class MastodonClient extends Client {
         let content: string;
 
         for (const status of statuses) {
-            content = status.content;console.log(status);
+            content = status.content;
 
             if (status.created_at) {
                 timestamp = Date.parse(status.created_at);
@@ -94,11 +94,9 @@ export class MastodonClient extends Client {
                 content &&
                 !Utilities.includes(content, statusKeywords)
             ) {
-                console.log('continue', timestamp);
                 continue;
             }
 
-            console.log('break', timestamp);
             break;
         }
 
