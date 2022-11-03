@@ -68,11 +68,11 @@ export class MastodonClient extends Client {
         });
     }
 
-    public async getTimestamp(
-        latestTimestampKeywords: Array<string> = []
-    ): Promise<number> {
+    public async getTimestamp(): Promise<number> {
+        const config = this.config as MastodonClient.TargetConfig;
+        const latestTimestampKeywords = (config.latestTimestampKeywords || []);
         const keywords = !!latestTimestampKeywords.length;
-        const limit = keywords ? '' : '?limit=1';
+        const limit = (keywords ? '' : '?limit=1');
         const accountId = (
             this.authConfig.account_id ||
             (await this.get('accounts/verify_credentials')).id
