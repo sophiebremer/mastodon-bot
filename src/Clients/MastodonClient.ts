@@ -108,7 +108,7 @@ export class MastodonClient extends Client {
 
         let delay: number;
 
-        stdout.write(`\nPosting ${items.length} item(s)`);
+        stdout.write(`Posting ${items.length} item(s)`);
 
         for (const item of items) {
 
@@ -122,12 +122,12 @@ export class MastodonClient extends Client {
                 )
             });
 
-            process.stdout.write('.');
+            stdout.write('.');
 
             await this.delay(delay);
         }
 
-        process.stdout.write('\n');
+        stdout.write('\n');
     }
 
 }
