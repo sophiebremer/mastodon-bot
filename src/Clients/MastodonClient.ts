@@ -127,7 +127,7 @@ export class MastodonClient extends Client {
             await this.delay(delay);
         }
 
-        stdout.write('\n');
+        stdout.write(' - done.\n');
     }
 
 }
