@@ -32,12 +32,14 @@ export class RSSClient extends Client {
         const allItems: Array<Client.Item> = [];
         const config = this.config as RSSClient.SourceConfig;
         const feeds = config.feeds;
-        const sinceTimestamp = (new Date().getTime() - (config.minutesToCheck || 10) * 1000);
+        const sinceTimestamp = (new Date().getTime() - (config.minutesToCheck || 10) * 60000);
         const stdout = process.stdout;
 
-        stdout.write(`\nSearch for new items since ${new Date(sinceTimestamp).toUTCString()}\n`);
+        stdout.write(`Search for new items since ${new Date(sinceTimestamp).toUTCString()}\n`);
 
         for (const feedName in feeds) {
+            stdout.write(`Checking ${feedName}`);
+
             const response = await fetch(feeds[feedName]);
             const parser = new XML.XMLParser({
                 attributeNamePrefix: '$_',
@@ -89,7 +91,11 @@ export class RSSClient extends Client {
                         text,
                         timestamp
                     });
+
+                    stdout.write('.');
                 }
+
+                stdout.write('\n');
             }
         }
 

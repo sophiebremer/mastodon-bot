@@ -11,7 +11,6 @@ export declare class MastodonClient extends Client {
 }
 export declare namespace MastodonClient {
     interface AuthConfig extends MastodonAPI.Config {
-        account_id?: number;
     }
     type Config = (SourceConfig | TargetConfig);
     interface SourceConfig extends Client.SourceConfig {
