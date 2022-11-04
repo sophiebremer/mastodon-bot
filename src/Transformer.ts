@@ -6,6 +6,7 @@
 
 import Client from './Clients/Client.js';
 import Config from './Config.js';
+import Utilities from './Utilities.js';
 
 /* *
  *
@@ -148,23 +149,7 @@ export class Transformer {
                 continue;
             }
 
-            for (const pattern in replacements) {
-                if (
-                    pattern.length > 2 &&
-                    pattern.startsWith('/') &&
-                    pattern.endsWith('/')
-                ) {
-                    text = text.replace(
-                        new RegExp(pattern.substring(1, pattern.length - 1), 'gsu'),
-                        replacements[pattern]
-                    );
-                }
-                else {
-                    text = text
-                        .split(pattern)
-                        .join(replacements[pattern]);
-                }
-            }
+            Utilities.replacePatterns(text, replacements);
 
             filteredItems.push({
                 ...item,
@@ -179,13 +164,7 @@ export class Transformer {
         const sourceClient = this.sourceClient;
         const targetClient = this.targetClient;
 
-        await targetClient.setItems(
-            this.filter(
-                await sourceClient.getItems(
-                    await targetClient.getTimestamp()
-                )
-            )
-        );
+        await targetClient.setItems(this.filter(await sourceClient.getItems()));
     }
 
 }

@@ -72,20 +72,14 @@ export class Client {
         return new Promise(resolve => setTimeout(resolve, milliseconds));
     }
 
-    public async getItems(
-        sinceTimestamp: number
-    ): Promise<Array<Client.Item>> {
-        throw new Error('Not implemented');
-    }
-
-    public async getTimestamp(): Promise<number> {
+    public async getItems(): Promise<Array<Client.Item>> {
         throw new Error('Not implemented');
     }
 
     public async setItems(
         items: Array<Client.Item>
     ): Promise<void> {
-        throw new Error('Not implemented');
+        throw new Error('Not implemented', { cause: items });
     }
 
 }

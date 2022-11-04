@@ -43,6 +43,35 @@ function includes(
     return false;
 }
 
+function replacePatterns(
+    text: string,
+    replacementPatterns: Record<string, string>
+): string {
+    let replacement: string;
+
+    for (const pattern in replacementPatterns) {
+        replacement = replacementPatterns[pattern];
+
+        if (
+            pattern.length > 2 &&
+            pattern.startsWith('/') &&
+            pattern.endsWith('/')
+        ) {
+            text = text.replace(
+                new RegExp(pattern.substring(1, pattern.length - 1), 'gsu'),
+                replacement
+            );
+        }
+        else {
+            text = text
+                .split(pattern)
+                .join(replacement);
+        }
+    }
+
+    return text;
+}
+
 function trimSpaces(
     text: string,
     removeBreaks?: boolean
@@ -64,6 +93,7 @@ function trimSpaces(
 export const Utilities = {
     assembleString,
     includes,
+    replacePatterns,
     trimSpaces
 };
 
