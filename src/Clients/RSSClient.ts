@@ -94,9 +94,9 @@ export class RSSClient extends Client {
 
                     stdout.write('.');
                 }
-
-                stdout.write('\n');
             }
+
+            stdout.write('\n');
         }
 
         allItems.sort((a, b) => a.timestamp - b.timestamp);
