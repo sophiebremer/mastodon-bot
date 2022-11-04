@@ -149,7 +149,7 @@ export class Transformer {
                 continue;
             }
 
-            Utilities.replacePatterns(text, replacements);
+            text = Utilities.replacePatterns(text, replacements);
 
             filteredItems.push({
                 ...item,
