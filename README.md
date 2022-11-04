@@ -10,7 +10,6 @@ config.json
 {
     "auth": {
         "mastodon": {
-            // "account_id": "XXXX",
             // "timeout_ms": 60000;
             // "trusted_cert_fingerprints": ["XXXX"],
             "access_token": "XXXX",
@@ -22,12 +21,12 @@ config.json
             "source": {
                 "source_type": "rss",
                 // "append_name": true,
-                // "link_hash": false,
-                // "link_query": false,
+                // "item_limit": 10,
+                // "link_replacements": { "/\\?.*$/": "" },
                 "feeds": {
                     "RSS": "https://rss.example/feed.rss"
                 },
-                "item_limit": 10
+                "minutesToCheck": 10
             },
             "target": {
                 "target_type": "mastodon",

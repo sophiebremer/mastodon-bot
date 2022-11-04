@@ -5,8 +5,7 @@ export declare class Client {
     readonly config: Client.Config;
     readonly mode: ('source' | 'target');
     delay(milliseconds: number): Promise<void>;
-    getItems(sinceTimestamp: number): Promise<Array<Client.Item>>;
-    getTimestamp(): Promise<number>;
+    getItems(): Promise<Array<Client.Item>>;
     setItems(items: Array<Client.Item>): Promise<void>;
 }
 export declare namespace Client {

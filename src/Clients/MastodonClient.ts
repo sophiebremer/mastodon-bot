@@ -68,41 +68,6 @@ export class MastodonClient extends Client {
         });
     }
 
-    public async getTimestamp(): Promise<number> {
-        const config = this.config as MastodonClient.TargetConfig;
-        const statusKeywords = (config.related_status_keywords || []);
-        const hasKeywords = !!statusKeywords.length;
-        const limit = (hasKeywords ? '' : '?limit=1');
-        const accountId = (
-            this.authConfig.account_id ||
-            (await this.get('accounts/verify_credentials')).id
-        );
-        const statuses = await this.get(`accounts/${accountId}/statuses${limit}`);
-
-        let timestamp = new Date().getTime();
-        let content: string;
-
-        for (const status of statuses) {
-            content = status.content;
-
-            if (status.created_at) {
-                timestamp = Date.parse(status.created_at);
-            }
-
-            if (
-                hasKeywords &&
-                content &&
-                !Utilities.includes(content, statusKeywords)
-            ) {
-                continue;
-            }
-
-            break;
-        }
-
-        return timestamp;
-    }
-
     protected post(
         path: string,
         params: Record<string, any> = {}
@@ -182,7 +147,7 @@ export namespace MastodonClient {
      * */
 
     export interface AuthConfig extends MastodonAPI.Config {
-        account_id?: number
+        // nothing to add
     }
 
     export type Config = (SourceConfig|TargetConfig);

@@ -23,9 +23,7 @@ export class RSSClient extends Client {
      *
      * */
 
-    public async getItems(
-        sinceTimestamp: number
-    ): Promise<Array<Client.Item>> {
+    public async getItems(): Promise<Array<Client.Item>> {
 
         if (this.mode !== 'source') {
             throw new Error('Client is not in source mode');
@@ -34,6 +32,7 @@ export class RSSClient extends Client {
         const allItems: Array<Client.Item> = [];
         const config = this.config as RSSClient.SourceConfig;
         const feeds = config.feeds;
+        const sinceTimestamp = (new Date().getTime() - (config.minutesToCheck || 10) * 1000);
         const stdout = process.stdout;
 
         stdout.write(`\nSearch for new items since ${new Date(sinceTimestamp).toUTCString()}\n`);
@@ -67,8 +66,7 @@ export class RSSClient extends Client {
 
                     let link = (item.link instanceof Array ? item.link[0] : item.link);
                     link = typeof link === 'object' ? link.$_href : link;
-                    link = config.link_query === false ? link.split('?')[0] : link;
-                    link = config.link_hash === false ? link.split('#')[0] : link;
+                    link = Utilities.replacePatterns(link, (config.link_replacements || {}));
 
                     let text = Utilities.trimSpaces(
                         item.description || item.summary || '',
@@ -128,10 +126,10 @@ export namespace RSSClient {
     export interface SourceConfig extends Client.SourceConfig {
         source_type: 'rss';
         append_name?: boolean;
-        item_limit?: number;
-        link_hash?: boolean;
-        link_query?: boolean;
         feeds: Record<string, string>;
+        item_limit?: number;
+        link_replacements?: Record<string, string>;
+        minutesToCheck?: number;
     }
 
     export interface TargetConfig extends Client.TargetConfig {
