@@ -35,7 +35,7 @@ export class RSSClient extends Client {
         const sinceTimestamp = (new Date().getTime() - (config.minutesToCheck || 10) * 60000);
         const stdout = process.stdout;
 
-        stdout.write(`Search for new items since ${new Date(sinceTimestamp).toUTCString()}\n`);
+        stdout.write(`Searching for new items since ${new Date(sinceTimestamp).toUTCString()}\n`);
 
         for (const feedName in feeds) {
             stdout.write(`Checking ${feedName}`);
@@ -96,7 +96,7 @@ export class RSSClient extends Client {
                 }
             }
 
-            stdout.write('\n');
+            stdout.write(' - done.\n');
         }
 
         allItems.sort((a, b) => a.timestamp - b.timestamp);
