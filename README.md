@@ -1,21 +1,20 @@
 Mastodon Bot
 ============
 
-This bot can filter and post RSS items to a Mastodon account.
+This bot can filter and post items to a Mastodon account.
 
 
 
 Configuration
 -------------
 
-The Bot gets set up by a JSON configuration file, which contain 2 sections.
+The bot loads a JSON configuration file with 2 sections.
 
 
 
 ### `auth`
 
-In the `auth` section does the bot load the access tokens, which allows
-it to post new RSS items.
+The `auth` section contains the access tokens to post new items.
 
 
 
@@ -38,21 +37,20 @@ Mastodon account settings.
 
 ### `transform`
 
-In the `transform` section does the bot load the single source to target
-relations.
+The `transform` section lists the relations of source and target.
 
 
 
 #### `transform: source`
 
-The `source` section contains the configuration to find new items to post.
+The `source` section contains the configuration to find new items.
 
 * `source_type`: This setting is required and defines the type of source. Only
   `rss` is supported right now.
 
 
 
-### `transform: target`
+#### `transform: target`
 
 
 The `target` section contains the configuration to post new items.
