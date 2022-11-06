@@ -103,6 +103,7 @@ export class MastodonClient extends Client {
         }
 
         const config = this.config as MastodonClient.TargetConfig;
+        const sensitive = config.sensitive;
         const signature = config.signature || '';
         const stdout = process.stdout;
 
@@ -113,6 +114,7 @@ export class MastodonClient extends Client {
         for (const item of items) {
 
             delay = await this.post('statuses', {
+                sensitive,
                 status: Utilities.assembleString(
                     (item.text || '').trim(),
                     (item.link || signature ? '\n' : '') +
