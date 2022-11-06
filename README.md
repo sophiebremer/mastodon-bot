@@ -21,16 +21,16 @@ config.json
             "source": {
                 "source_type": "rss",
                 // "append_name": true,
+                // "check_updated_time": true,
                 // "item_limit": 10,
                 // "link_replacements": { "/\\?.*$/": "" },
+                // "minutes_to_check": 10,
                 "feeds": {
                     "RSS": "https://rss.example/feed.rss"
-                },
-                "minutesToCheck": 10
+                }
             },
             "target": {
                 "target_type": "mastodon",
-                // "related_status_keywords": [ "search.example" ],
                 // "sensitive": false,
                 "signature": "#rssbot"
             }

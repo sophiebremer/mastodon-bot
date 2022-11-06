@@ -31,8 +31,9 @@ export class RSSClient extends Client {
 
         const allItems: Array<Client.Item> = [];
         const config = this.config as RSSClient.SourceConfig;
+        const checkUpdated = !!config.check_updated_time;
         const feeds = config.feeds;
-        const sinceTimestamp = (new Date().getTime() - (config.minutesToCheck || 10) * 60000);
+        const sinceTimestamp = (new Date().getTime() - (config.minutes_to_check || 10) * 60000);
         const stdout = process.stdout;
 
         stdout.write(`Searching for new items since ${new Date(sinceTimestamp).toUTCString()}\n`);
@@ -60,7 +61,11 @@ export class RSSClient extends Client {
                 items = items instanceof Array ? items : [items];
 
                 for (const item of items) {
-                    const timestamp = Date.parse(item.pubDate || item.published);
+                    const timestamp = (
+                        checkUpdated ?
+                            Date.parse(item.updated || item.pubDate || item.published) :
+                            Date.parse(item.pubDate || item.published)
+                    );
 
                     if (timestamp < sinceTimestamp) {
                         continue;
@@ -132,10 +137,11 @@ export namespace RSSClient {
     export interface SourceConfig extends Client.SourceConfig {
         source_type: 'rss';
         append_name?: boolean;
+        check_updated_time?: boolean;
         feeds: Record<string, string>;
         item_limit?: number;
         link_replacements?: Record<string, string>;
-        minutesToCheck?: number;
+        minutes_to_check?: number;
     }
 
     export interface TargetConfig extends Client.TargetConfig {
