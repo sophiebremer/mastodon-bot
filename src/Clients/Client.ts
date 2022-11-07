@@ -137,6 +137,13 @@ export class Client {
             return false;
         }
 
+        await FS.promises.mkdir(
+            Path.dirname(fileToCheck),
+            {
+                recursive: true
+            }
+        );
+
         await FS.promises.writeFile(
             fileToCheck,
             JSON.stringify(fileToCheckJSON, undefined, '    ')
