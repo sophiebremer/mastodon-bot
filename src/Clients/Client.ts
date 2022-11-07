@@ -1,5 +1,14 @@
 /* *
  *
+ *  Imports
+ *
+ * */
+
+import * as FS from 'fs';
+import * as Path from 'path';
+
+/* *
+ *
  *  Class
  *
  * */
@@ -76,6 +85,88 @@ export class Client {
         throw new Error('Not implemented');
     }
 
+    protected async loadFileToCheck(): Promise<(Client.FileToCheck|undefined)> {
+
+        if (this.mode !== 'source') {
+            throw new Error('Client is not in source mode');
+        }
+
+        const config = this.config as Client.SourceConfig;
+        const fileToCheck = config.file_to_check;
+
+        if (!fileToCheck) {
+            return;
+        }
+
+        let fileToCheckJSON: Partial<Client.FileToCheck> = {};
+        
+        try {
+            fileToCheckJSON = JSON.parse(
+                (await FS.promises.readFile(fileToCheck)).toString()
+            );
+        }
+        catch {
+            fileToCheckJSON = {};
+        }
+
+        if (typeof fileToCheckJSON.last_timestamp !== 'number') {
+            fileToCheckJSON.last_timestamp = (new Date().getTime() - 10 * 60000);
+        }
+
+        return fileToCheckJSON as Client.FileToCheck;
+    }
+
+    protected async loadLastTimestamp(): Promise<(number|undefined)> {
+        const fileToCheck = await this.loadFileToCheck();
+
+        return fileToCheck?.last_timestamp;
+    }
+
+    protected async saveFileToCheck(
+        fileToCheckJSON: Client.FileToCheck
+    ): Promise<boolean> {
+
+        if (this.mode !== 'source') {
+            throw new Error('Client is not in source mode');
+        }
+
+        const config = this.config as Client.SourceConfig;
+        const fileToCheck = config.file_to_check;
+
+        if (!fileToCheck) {
+            return false;
+        }
+
+        await FS.promises.writeFile(
+            fileToCheck,
+            JSON.stringify(fileToCheckJSON, undefined, '    ')
+        );
+
+        return true;
+    }
+
+    protected async saveLastTimestamp(
+        lastTimestamp: number
+    ): Promise<boolean> {
+        let fileToCheckJSON = await this.loadFileToCheck();
+
+        if (fileToCheckJSON) {
+
+            if (lastTimestamp === fileToCheckJSON.last_timestamp) {
+                return true;
+            }
+
+            fileToCheckJSON.last_timestamp = lastTimestamp;
+        }
+        else {
+            fileToCheckJSON = {
+                last_timestamp: lastTimestamp
+            };
+        }
+
+        return this.saveFileToCheck(fileToCheckJSON);
+    }
+
     public async setItems(
         items: Array<Client.Item>
     ): Promise<void> {
@@ -104,6 +195,10 @@ export namespace Client {
 
     export type Config = (SourceConfig|TargetConfig);
 
+    export interface FileToCheck {
+        last_timestamp: number;
+    }
+
     export interface Item {
         link?: string;
         source_type: string;
@@ -113,6 +208,7 @@ export namespace Client {
 
     export interface SourceConfig {
         source_type: string;
+        file_to_check?: string;
     }
 
     export interface TargetConfig {

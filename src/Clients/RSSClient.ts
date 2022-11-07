@@ -5,6 +5,7 @@
  * */
 
 import * as XML from 'fast-xml-parser';
+
 import fetch from 'node-fetch';
 import Client from './Client.js';
 import Utilities from '../Utilities.js';
@@ -33,7 +34,10 @@ export class RSSClient extends Client {
         const config = this.config as RSSClient.SourceConfig;
         const checkUpdated = !!config.check_updated_time;
         const feeds = config.feeds;
-        const sinceTimestamp = (new Date().getTime() - (config.minutes_to_check || 10) * 60000);
+        const sinceTimestamp = (
+            await this.loadLastTimestamp() ||
+            (new Date().getTime() - (config.minutes_to_check || 10) * 60000)
+        );
         const stdout = process.stdout;
 
         stdout.write(`Searching for new items since ${new Date(sinceTimestamp).toUTCString()}\n`);
@@ -112,6 +116,12 @@ export class RSSClient extends Client {
         ) {
             allItems.splice(0, allItems.length - config.item_limit);
         }
+
+        await this.saveLastTimestamp(
+            allItems.length ?
+                allItems[allItems.length - 1].timestamp :
+                sinceTimestamp
+        );
 
         return allItems;
     }
