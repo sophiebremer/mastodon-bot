@@ -210,6 +210,7 @@ export namespace Client {
         link?: string;
         source_type: string;
         text?: string;
+        title?: string;
         timestamp: number;
     }
 

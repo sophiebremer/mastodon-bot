@@ -4,10 +4,11 @@
  *
  * */
 
-import type * as MastodonAPI from 'mastodon-api';
-
 import Client from './Client.js';
-import Mastodon = require('mastodon-api');
+import {
+    MastodonAPI,
+    MastodonStatus
+} from 'tsl-mastodon-api';
 import Utilities from '../Utilities.js';
 
 /* *
@@ -36,7 +37,7 @@ export class MastodonClient extends Client {
 
         this.authConfig = authConfig;
         this.config = clientConfig;
-        this.mastodon = new (Mastodon as any)(authConfig);
+        this.mastodon = new MastodonAPI(authConfig);
     }
 
     /* *
@@ -49,46 +50,13 @@ export class MastodonClient extends Client {
 
     public readonly config: MastodonClient.Config;
 
-    protected mastodon: MastodonAPI.default; // type confusion
+    protected mastodon: MastodonAPI;
 
     /* *
      *
      *  Functions
      *
      * */
-
-    protected get(
-        path: string,
-        params: Record<string, any> = {}
-    ): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this.mastodon.get(path, params, (err, data) => (
-                err ? reject(err) : resolve(data)
-            ));
-        });
-    }
-
-    protected post(
-        path: string,
-        params: Record<string, any> = {}
-    ): Promise<number> {
-        return new Promise((resolve, reject) => {
-            this.mastodon.post(path, params, (err, data, response) => {
-                if (err) {
-                    return reject(err);
-                }
-
-                const rateLimit = parseInt('0' + response.headers['x-ratelimit-remaining'], 10);
-
-                if (rateLimit) {
-                    resolve(300000 / rateLimit);
-                }
-                else {
-                    resolve(6000);
-                }
-            }); 
-        });
-    }
 
     public async setItems(
         items: Array<Client.Item>
@@ -103,17 +71,18 @@ export class MastodonClient extends Client {
         }
 
         const config = this.config as MastodonClient.TargetConfig;
+        const mastodon = this.mastodon;
         const sensitive = config.sensitive;
         const signature = config.signature || '';
         const stdout = process.stdout;
 
-        let delay: number;
+        let result: MastodonAPI.Success<MastodonStatus>;
 
         stdout.write(`Posting ${items.length} item(s)`);
 
         for (const item of items) {
 
-            delay = await this.post('statuses', {
+            result = await mastodon.post('statuses', {
                 sensitive,
                 status: Utilities.assembleString(
                     (item.text || '').trim(),
@@ -124,9 +93,14 @@ export class MastodonClient extends Client {
                 )
             });
 
-            stdout.write('.');
+            if (typeof result.json?.id === 'number') {
+                stdout.write('.');
+            }
+            else {
+                stdout.write('x');
+            }
 
-            await this.delay(delay);
+            await mastodon.delay();
         }
 
         stdout.write(' - done.\n');

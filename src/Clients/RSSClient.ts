@@ -75,29 +75,35 @@ export class RSSClient extends Client {
                         continue;
                     }
 
-                    let link = (item.link instanceof Array ? item.link[0] : item.link);
-                    link = typeof link === 'object' ? link.$_href : link;
-                    link = Utilities.replacePatterns(link, (config.link_replacements || {}));
+                    let link: (string|undefined) = (
+                        item.link instanceof Array ? item.link[0] :
+                        typeof item.link === 'object' ? item.link.$_href :
+                        item.link
+                    );
 
-                    let text = Utilities.trimSpaces(
-                        item.description || item.summary || '',
-                        true
-                    );
-                    text = (
-                        item.title && text ?
-                            Utilities.trimSpaces(item.title, true) + '\n\n' + text :
-                            Utilities.trimSpaces(item.title || '', true) || text
-                    );
-                    text = (
-                        config.append_name && feedName ?
-                            Utilities.trimSpaces(feedName, true) + ': ' + text :
-                            text
+                    if (link && config.link_replacements) {
+                        link = Utilities.replacePatterns(link, config.link_replacements);
+                    }
+
+                    let text: (string|undefined) = (item.description || item.summary);
+
+                    if (text) {
+                        text = Utilities.trimSpaces(text, true)
+                    }
+
+                    if (config.append_name && feedName && text) {
+                        text = Utilities.trimSpaces(feedName, true) + ': ' + text;
+                    }
+
+                    let title: (string|undefined) = (
+                        item.title && Utilities.trimSpaces(item.title, true)
                     );
 
                     allItems.push({
-                        link,
                         source_type: 'rss',
+                        link,
                         text,
+                        title,
                         timestamp
                     });
 

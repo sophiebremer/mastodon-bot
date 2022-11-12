@@ -1,12 +1,10 @@
-import type * as MastodonAPI from 'mastodon-api';
 import Client from './Client.js';
+import { MastodonAPI } from 'tsl-mastodon-api';
 export declare class MastodonClient extends Client {
     constructor(clientConfig: MastodonClient.Config, authConfig?: MastodonClient.AuthConfig);
     private readonly authConfig;
     readonly config: MastodonClient.Config;
-    protected mastodon: MastodonAPI.default;
-    protected get(path: string, params?: Record<string, any>): Promise<any>;
-    protected post(path: string, params?: Record<string, any>): Promise<number>;
+    protected mastodon: MastodonAPI;
     setItems(items: Array<Client.Item>): Promise<void>;
 }
 export declare namespace MastodonClient {
