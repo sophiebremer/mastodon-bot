@@ -114,12 +114,7 @@ export class MastodonClient extends Client {
                     }
             );
 
-            if (typeof result.json?.id === 'string') {
-                await this.saveUID(item.uid, 1);
-            }
-            else {
-                await this.saveUID(item.uid, 0);
-            }
+            await this.saveUID(item.uid, 1); // (typeof result.json?.id === 'string' ? 1 : 0));
 
             await mastodon.delay();
         }

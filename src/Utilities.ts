@@ -36,10 +36,11 @@ function attributeOrText(
     attribute?: string
 ): string {
 
-    if (
-        !xmlNode ||
-        typeof xmlNode !== 'object'
-    ) {
+    if (!xmlNode) {
+        return '';
+    }
+
+    if (typeof xmlNode !== 'object') {
         return `${xmlNode}`;
     }
 
