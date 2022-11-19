@@ -110,6 +110,7 @@ export class Transformer {
             !this.positives &&
             !this.replacements
         ) {
+            console.log('<<<>>>');
             return items;
         }
 
@@ -120,11 +121,12 @@ export class Transformer {
 
         let negativesCounter: number;
         let positivesCounter: number;
-        let text: string;
+        let text: (string|undefined);
+        let title: (string|undefined);
 
         for (const item of items) {
 
-            if (!item.text) {
+            if (!item.text && !item.title) {
                 filteredItems.push(item);
                 continue;
             }
@@ -132,15 +134,22 @@ export class Transformer {
             negativesCounter = 0;
             positivesCounter = 0;
             text = item.text;
+            title = item.title;
 
             for (const negative of negatives) {
-                if (text.includes(negative)) {
+                if (
+                    text && text.includes(negative) ||
+                    title && title.includes(negative)
+                ) {
                     ++negativesCounter;
                 }
             }
 
             for (const positive of positives) {
-                if (text.includes(positive)) {
+                if (
+                    text && text.includes(positive) ||
+                    title && title.includes(positive)
+                ) {
                     ++positivesCounter;
                 }
             }
@@ -149,10 +158,17 @@ export class Transformer {
                 continue;
             }
 
-            text = Utilities.replacePatterns(text, replacements);
+            if (text) {
+                text = Utilities.replacePatterns(text, replacements);
+            }
+
+            if (title) {
+                title = Utilities.replacePatterns(title, replacements);
+            }
 
             filteredItems.push({
                 ...item,
+                title,
                 text
             });
         }
