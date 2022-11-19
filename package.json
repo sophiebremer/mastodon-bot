@@ -21,13 +21,13 @@
     "dependencies": {
         "fast-xml-parser": "^4.0.11",
         "node-fetch": "^3.2.10",
-        "tsl-mastodon-api": "0.0.2",
+        "tsl-mastodon-api": "0.0.4",
         "yargs": "^17.6.2"
     },
     "devDependencies": {
         "@types/node": "^18.11.9",
         "@types/yargs": "^17.0.13",
-        "typescript": "^4.8.4"
+        "typescript": "^4.9.3"
     },
     "engines": {
         "node": ">=16.8.0"
