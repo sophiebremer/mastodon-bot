@@ -21,7 +21,7 @@
     "dependencies": {
         "fast-xml-parser": "^4.0.11",
         "node-fetch": "^3.2.10",
-        "tsl-mastodon-api": "~0.0.1",
+        "tsl-mastodon-api": "0.0.2",
         "yargs": "^17.6.2"
     },
     "devDependencies": {

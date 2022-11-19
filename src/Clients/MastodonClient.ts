@@ -4,11 +4,8 @@
  *
  * */
 
+import * as Mastodon from 'tsl-mastodon-api';
 import Client from './Client.js';
-import {
-    MastodonAPI,
-    MastodonStatus
-} from 'tsl-mastodon-api';
 import Utilities from '../Utilities.js';
 
 /* *
@@ -37,7 +34,7 @@ export class MastodonClient extends Client {
 
         this.authConfig = authConfig;
         this.config = clientConfig;
-        this.mastodon = new MastodonAPI(authConfig);
+        this.mastodon = new Mastodon.API(authConfig);
     }
 
     /* *
@@ -50,7 +47,7 @@ export class MastodonClient extends Client {
 
     public readonly config: MastodonClient.Config;
 
-    protected mastodon: MastodonAPI;
+    protected mastodon: Mastodon.API;
 
     /* *
      *
@@ -71,39 +68,63 @@ export class MastodonClient extends Client {
         }
 
         const config = this.config as MastodonClient.TargetConfig;
+        const limit = config.limit;
         const mastodon = this.mastodon;
         const sensitive = config.sensitive;
-        const signature = config.signature || '';
-        const stdout = process.stdout;
+        const signature = (config.signature || '');
 
-        let result: MastodonAPI.Success<MastodonStatus>;
-
-        stdout.write(`Posting ${items.length} item(s)`);
+        let counter = 0;
+        let result: Mastodon.API.Success<Mastodon.JSON.Status>;
 
         for (const item of items) {
 
-            result = await mastodon.post('statuses', {
-                sensitive,
-                status: Utilities.assembleString(
-                    (item.text || '').trim(),
-                    (item.link || signature ? '\n' : '') +
-                    (item.link ? `\n${item.link}` : '') +
-                    (signature ? `\n${signature}` : ''),
-                    500
-                )
-            });
+            if (await this.isKnownUID(item.uid)) {
+                continue;
+            }
 
-            if (typeof result.json?.id === 'number') {
-                stdout.write('.');
+            if (limit && counter >= limit) {
+                break;
+            }
+
+            counter++;
+
+            result = await mastodon.postNewStatus(
+                item.title && sensitive ?
+                    {
+                        sensitive,
+                        spoiler_text: item.title,
+                        status: Utilities.assembleString(
+                            (item.text || '').trim(),
+                            (item.link || signature ? '\n' : '') +
+                            (item.link ? `\n${item.link}` : '') +
+                            (signature ? `\n${signature}` : ''),
+                            500
+                        )
+                    } :
+                    {
+                        sensitive,
+                        status: Utilities.assembleString(
+                            (item.title ? `${item.title}\n\n` : '') +
+                            (item.text || '').trim(),
+                            (item.link || signature ? '\n' : '') +
+                            (item.link ? `\n${item.link}` : '') +
+                            (signature ? `\n${signature}` : ''),
+                            500
+                        )
+                    }
+            );
+
+            if (typeof result.json?.id === 'string') {
+                await this.saveUID(item.uid, 1);
             }
             else {
-                stdout.write('x');
+                await this.saveUID(item.uid, 0);
             }
 
             await mastodon.delay();
         }
 
-        stdout.write(' - done.\n');
+        console.log(`Posted ${counter || items.length} item(s)`);
     }
 
 }
@@ -122,7 +143,7 @@ export namespace MastodonClient {
      *
      * */
 
-    export interface AuthConfig extends MastodonAPI.Config {
+    export interface AuthConfig extends Mastodon.API.Config {
         // nothing to add
     }
 

@@ -8,6 +8,8 @@ const BREAKS_REGEXP = /[\n\r]+/gu;
 
 const SPACES_REGEXP = /\s+/gu;
 
+const XML_REGEXP = /<!\[CDATA\[(.*?)\]\]>|<([\/!?]?[\w\-]+)(\s+\w+(?:\s*=\s*(?:'[^']*'|"[^"]*")))*\s*\/?>/gsu;
+
 /* *
  *
  *  Functions
@@ -29,6 +31,26 @@ function assembleString(
     return text + addition;
 }
 
+function attributeOrText(
+    xmlNode: unknown,
+    attribute?: string
+): string {
+
+    if (
+        !xmlNode ||
+        typeof xmlNode !== 'object'
+    ) {
+        return `${xmlNode}`;
+    }
+
+    const obj = xmlNode as Record<string, string>;
+
+    return '' + (
+        attribute && obj[`@_${attribute}`] ||
+        obj['#text']
+    );
+}
+
 function includes(
     text: string,
     searchTerms: Array<string>
@@ -41,6 +63,12 @@ function includes(
     }
 
     return false;
+}
+
+function removeXML(
+    text: string
+): string {
+    return text.replace(XML_REGEXP, '$1 ');
 }
 
 function replacePatterns(
@@ -92,7 +120,9 @@ function trimSpaces(
 
 export const Utilities = {
     assembleString,
+    attributeOrText,
     includes,
+    removeXML,
     replacePatterns,
     trimSpaces
 };

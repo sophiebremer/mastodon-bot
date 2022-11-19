@@ -6,18 +6,18 @@ export declare class Client {
     readonly mode: ('source' | 'target');
     delay(milliseconds: number): Promise<void>;
     getItems(): Promise<Array<Client.Item>>;
-    protected loadFileToCheck(): Promise<(Client.FileToCheck | undefined)>;
-    protected loadLastTimestamp(): Promise<(number | undefined)>;
-    protected saveFileToCheck(fileToCheckJSON: Client.FileToCheck): Promise<boolean>;
-    protected saveLastTimestamp(lastTimestamp: number): Promise<boolean>;
+    protected loadTrackerFile(): Promise<(Client.TrackerFile | undefined)>;
+    protected isKnownUID(uid: string): Promise<(boolean | undefined)>;
+    protected saveTrackerFile(fileToCheckJSON: Client.TrackerFile): Promise<(boolean | undefined)>;
+    protected saveUID(uid: string, flag?: (0 | 1)): Promise<(boolean | undefined)>;
     setItems(items: Array<Client.Item>): Promise<void>;
 }
 export declare namespace Client {
     interface AuthConfig {
     }
     type Config = (SourceConfig | TargetConfig);
-    interface FileToCheck {
-        last_timestamp: number;
+    interface TrackerFile {
+        uids: Record<string, (0 | 1)>;
     }
     interface Item {
         link?: string;
@@ -25,13 +25,17 @@ export declare namespace Client {
         text?: string;
         title?: string;
         timestamp: number;
+        uid: string;
     }
     interface SourceConfig {
         source_type: string;
-        file_to_check?: string;
+        limit?: number;
+        tracker_file?: string;
     }
     interface TargetConfig {
         target_type: string;
+        limit?: number;
+        tracker_file?: string;
     }
 }
 export default Client;

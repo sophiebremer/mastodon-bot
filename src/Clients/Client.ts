@@ -85,93 +85,72 @@ export class Client {
         throw new Error('Not implemented');
     }
 
-    protected async loadFileToCheck(): Promise<(Client.FileToCheck|undefined)> {
-
-        if (this.mode !== 'source') {
-            throw new Error('Client is not in source mode');
-        }
-
+    protected async loadTrackerFile(): Promise<(Client.TrackerFile|undefined)> {
         const config = this.config as Client.SourceConfig;
-        const fileToCheck = config.file_to_check;
+        const trackerFile = config.tracker_file;
 
-        if (!fileToCheck) {
+        if (!trackerFile) {
             return;
         }
 
-        let fileToCheckJSON: Partial<Client.FileToCheck> = {};
-        
+        let fileToCheckJSON: Partial<Client.TrackerFile> = {};
+
         try {
-            fileToCheckJSON = JSON.parse(
-                (await FS.promises.readFile(fileToCheck)).toString()
-            );
+            const json = (await FS.promises.readFile(trackerFile)).toString();
+
+            fileToCheckJSON = JSON.parse(json);
         }
         catch {
             fileToCheckJSON = {};
         }
 
-        if (typeof fileToCheckJSON.last_timestamp !== 'number') {
-            fileToCheckJSON.last_timestamp = (new Date().getTime() - 10 * 60000);
+        if (typeof fileToCheckJSON.uids !== 'object') {
+            fileToCheckJSON.uids = {};
         }
 
-        return fileToCheckJSON as Client.FileToCheck;
+        return fileToCheckJSON as Client.TrackerFile;
     }
 
-    protected async loadLastTimestamp(): Promise<(number|undefined)> {
-        const fileToCheck = await this.loadFileToCheck();
+    protected async isKnownUID(
+        uid: string
+    ): Promise<(boolean|undefined)> {
+        const fileToCheck = await this.loadTrackerFile();
 
-        return fileToCheck?.last_timestamp;
+        return !!fileToCheck?.uids[uid];
     }
 
-    protected async saveFileToCheck(
-        fileToCheckJSON: Client.FileToCheck
-    ): Promise<boolean> {
-
-        if (this.mode !== 'source') {
-            throw new Error('Client is not in source mode');
-        }
-
+    protected async saveTrackerFile(
+        fileToCheckJSON: Client.TrackerFile
+    ): Promise<(boolean|undefined)> {
         const config = this.config as Client.SourceConfig;
-        const fileToCheck = config.file_to_check;
+        const trackerFile = config.tracker_file;
 
-        if (!fileToCheck) {
-            return false;
+        if (!trackerFile) {
+            return;
         }
 
-        await FS.promises.mkdir(
-            Path.dirname(fileToCheck),
-            {
-                recursive: true
-            }
-        );
+        await FS.promises.mkdir(Path.dirname(trackerFile), { recursive: true });
 
-        await FS.promises.writeFile(
-            fileToCheck,
-            JSON.stringify(fileToCheckJSON, undefined, '    ')
-        );
+        const json = JSON.stringify(fileToCheckJSON, undefined, '    ');
+
+        await FS.promises.writeFile(trackerFile, json);
 
         return true;
     }
 
-    protected async saveLastTimestamp(
-        lastTimestamp: number
-    ): Promise<boolean> {
-        let fileToCheckJSON = await this.loadFileToCheck();
+    protected async saveUID(
+        uid: string,
+        flag: (0|1) = 1
+    ): Promise<(boolean|undefined)> {
+        let fileToCheckJSON = await this.loadTrackerFile();
 
-        if (fileToCheckJSON) {
-
-            if (lastTimestamp === fileToCheckJSON.last_timestamp) {
-                return true;
-            }
-
-            fileToCheckJSON.last_timestamp = lastTimestamp;
-        }
-        else {
-            fileToCheckJSON = {
-                last_timestamp: lastTimestamp
-            };
+        if (!fileToCheckJSON) {
+            return;
         }
 
-        return this.saveFileToCheck(fileToCheckJSON);
+        fileToCheckJSON.uids[uid] = flag;
+
+        return this.saveTrackerFile(fileToCheckJSON);
     }
 
     public async setItems(
@@ -202,8 +181,8 @@ export namespace Client {
 
     export type Config = (SourceConfig|TargetConfig);
 
-    export interface FileToCheck {
-        last_timestamp: number;
+    export interface TrackerFile {
+        uids: Record<string, (0|1)>;
     }
 
     export interface Item {
@@ -212,15 +191,19 @@ export namespace Client {
         text?: string;
         title?: string;
         timestamp: number;
+        uid: string;
     }
 
     export interface SourceConfig {
         source_type: string;
-        file_to_check?: string;
+        limit?: number;
+        tracker_file?: string;
     }
 
     export interface TargetConfig {
         target_type: string;
+        limit?: number;
+        tracker_file?: string;
     }
 
 }
