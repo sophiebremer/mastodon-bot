@@ -82,12 +82,6 @@ export class MastodonClient extends Client {
                 continue;
             }
 
-            if (limit && counter >= limit) {
-                break;
-            }
-
-            counter++;
-
             result = await mastodon.postNewStatus(
                 item.title && sensitive ?
                     {
@@ -114,7 +108,11 @@ export class MastodonClient extends Client {
                     }
             );
 
-            await this.saveUID(item.uid, 1); // (typeof result.json?.id === 'string' ? 1 : 0));
+            await this.saveUID(item.uid, typeof result.json?.id === 'string' ? 1 : 0);
+
+            if (limit && ++counter >= limit) {
+                break;
+            }
 
             await mastodon.delay();
         }

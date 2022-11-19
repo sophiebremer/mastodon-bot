@@ -91,12 +91,6 @@ export class RSSClient extends Client {
 
                 if (!await this.isKnownUID(uid)) {
 
-                    if (limit && counter >= limit) {
-                        break;
-                    }
-
-                    counter++;
-
                     allItems.push({
                         source_type: 'rss',
                         link,
@@ -107,6 +101,10 @@ export class RSSClient extends Client {
                     });
 
                     await this.saveUID(uid);
+
+                    if (limit && ++counter >= limit) {
+                        break;
+                    }
                 }
             }
         }
