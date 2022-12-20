@@ -1,24 +1,60 @@
-import * as Bot from './index.js';
-import Yargs from 'yargs/yargs';
-import { hideBin } from 'yargs/helpers';
+/* *
+ *
+ *  Imports
+ *
+ * */
 
-Yargs(hideBin(process.argv))
-    .command(
-        '* [config]',
-        false,
-        function (yargs) {
-            return yargs.positional('config', {
-                default: 'config.json',
-                description: 'Path to config'
-            });
-        },
-        function (argv) {
-            Bot.Transformer
-                .run(Bot.Config.load(argv.config))
-                .catch((e) => {
-                    console.error(e);
-                    process.exit(1);
-                });
-        }
-    )
-    .parse();
+import * as Bot from './index.js';
+
+/* *
+ *
+ *  Constants
+ *
+ * */
+
+const HELP = `
+mastodon-bot <config>
+
+Argument:
+  <config>    : Path to config
+
+Options:
+  --help, -h  : This help
+`;
+
+/* *
+ *
+ *  Functions
+ *
+ * */
+
+async function main(): Promise<void> {
+    const argv = process.argv.slice(2);
+    const config = argv.slice(-1)[0] || 'config.json';
+
+    if (
+        argv.includes('-h') ||
+        argv.includes('--help')
+    ) {
+        console.log(HELP);
+        process.exit(1);
+        return;
+    }
+
+    try {
+        Bot.Transformer.run(Bot.Config.load(config))
+    }
+    catch (error) {
+        console.error(error);
+        process.exit(1);
+    }
+
+}
+
+/* *
+ *
+ *  Default Function
+ *
+ * */
+
+main();

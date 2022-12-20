@@ -74,7 +74,7 @@ export class MastodonClient extends Client {
         const signature = (config.signature || '');
 
         let counter = 0;
-        let result: Mastodon.API.Success<Mastodon.JSON.Status>;
+        let result: Mastodon.API.Success<Mastodon.JSON.Status|Mastodon.JSON.StatusSchedule>;
 
         for (const item of items) {
 
@@ -82,7 +82,7 @@ export class MastodonClient extends Client {
                 continue;
             }
 
-            result = await mastodon.postNewStatus(
+            result = await mastodon.postStatus(
                 item.title && sensitive ?
                     {
                         sensitive,
