@@ -42,7 +42,7 @@ async function main(): Promise<void> {
     }
 
     try {
-        Bot.Transformer.run(Bot.Config.load(config))
+        await Bot.Transformer.run(Bot.Config.load(config))
     }
     catch (error) {
         console.error(error);
